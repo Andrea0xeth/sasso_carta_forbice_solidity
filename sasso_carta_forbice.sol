@@ -1,9 +1,17 @@
-pragma solidity 0.8;
+pragma solidity 0.5.10;
 
 contract SassoCartaForbici {
+ address public owner;
+ uint256 public gamesPlayed;
  enum hand {SASSO, CARTA, FORBICI}
  enum result {VINTO, PERSO, PAREGGIO}
+ string public lastResult;
 
+ constructor() public payable{
+   owner = msg.sender;
+   gamesPlayed = 0;
+   lastResult = "";
+ }
 
  //Return result in string form
  function resultToString(result res) public pure returns(string memory) {
@@ -23,28 +31,41 @@ contract SassoCartaForbici {
  function generateHand() public view returns(hand){
    // uint8 rand = uint8(uint256(keccak256(block.timestamp))%3 + 1);
    uint rand = uint(keccak256(abi.encodePacked(block.timestamp, msg.sender))) % 3;
+   if (rand == 0) {
+     return hand.SASSO;
+   }
    if (rand == 1) {
      return hand.CARTA;
    }
    if (rand == 2) {
      return hand.FORBICI;
    }
-   if (rand == 3) {
-     return hand.SASSO;
-   }
- }
-
+ }   
+ 
 
  // Convert int to hand
  function convertHand(uint256 choice) public pure returns(hand){
+   if (choice == 0) {
+     return hand.SASSO;
+   }
    if (choice == 1) {
      return hand.CARTA;
    }
    if (choice == 2) {
      return hand.FORBICI;
    }
-   if (choice == 3) {
-     return hand.SASSO;
+ }
+ 
+ // Emit outcome based on result for js display result
+ function setLastResult(result res) public {
+   if (res == result.PAREGGIO) {
+     lastResult = resultToString(res);
+   }
+   if (res == result.VINTO) {
+     lastResult = resultToString(res);
+   }
+   if (res == result.PERSO) {
+     lastResult = resultToString(res);
    }
  }
 
@@ -76,5 +97,6 @@ contract SassoCartaForbici {
        return result.PERSO;
      }
    }
+ 
  }
 }
